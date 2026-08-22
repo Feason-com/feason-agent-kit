@@ -18,8 +18,8 @@ describe('Feason Agent Kit', () => {
       'understanding-luke',
       'understanding-john',
     ]);
-    expect(new Set(agents.map((agent) => agent.overview)).size).toBe(4);
-    expect(new Set(agents.flatMap((agent) => agent.lenses.map((lens) => lens.id))).size).toBe(20);
+    expect(agents.map((agent) => agent.canonicalBook)).toEqual(gospelNames);
+    expect(agents.every((agent) => agent.contextTool === 'get_scripture_context')).toBe(true);
   });
 
   it('routes conversational requests without a default Gospel', () => {
@@ -40,18 +40,22 @@ describe('Feason Agent Kit', () => {
     });
   });
 
-  it('uses the whole Gospel when no passage was named', () => {
+  it('asks for a passage instead of inventing a whole-Gospel interpretation', () => {
     expect(buildGospelStudyRequest('Help me understand John')).toMatchObject({
       agentId: 'understanding-john',
-      contextRequest: { arguments: { reference: 'John' } },
+      needsPassage: true,
+      contextRequest: null,
     });
   });
 
-  it('includes source, disagreement, and pastoral safeguards', () => {
+  it('contains runtime evidence safeguards instead of embedded interpretation', () => {
     const request = buildGospelStudyRequest('Help me understand Mark');
 
-    expect(request?.instructions).toMatch(/source-grounded/i);
-    expect(request?.instructions).toMatch(/disputed/i);
-    expect(request?.instructions).toMatch(/not a pastoral verdict/i);
+    expect(request?.instructions).toMatch(/returned Mark text/i);
+    expect(request?.instructions).toMatch(/ask the learner which Mark passage/i);
+    expect(request?.instructions).toMatch(/instead of filling the gap from model memory/i);
+    expect(gospelAgents.Mark).not.toHaveProperty('overview');
+    expect(gospelAgents.Mark).not.toHaveProperty('lenses');
+    expect(gospelAgents.Mark).not.toHaveProperty('startingPoints');
   });
 });

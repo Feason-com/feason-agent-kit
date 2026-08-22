@@ -1,29 +1,30 @@
 # Feason Agent Kit
 
-Build source-grounded agents that help people understand one Gospel at a time.
-Matthew, Mark, Luke, and John are separate agents with their own literary map,
-learning goal, interpretive lenses, starting passages, and safeguards.
+Build source-grounded agents that route people to one Gospel at a time.
+Matthew, Mark, Luke, and John are separate technical routes with their own
+identity, aliases, canonical book constraint, MCP request, and safeguards.
 
 This is not one generic "Gospel bot." A request for Matthew selects Matthew. It
 does not redirect the learner into John or silently combine all four accounts.
 
 ## Why it is useful
 
-General-purpose agents can quote a verse while missing the shape of the book it
-comes from. The Feason Agent Kit gives an agent a bounded study method:
+The Feason Agent Kit gives an agent a bounded retrieval method:
 
-- begin with the biblical text and immediate context;
-- read the requested Gospel as its own witness;
-- distinguish sources from interpretation;
-- attribute disputed conclusions rather than inventing consensus;
-- compare another Gospel only when the comparison clarifies the requested one;
-- invite the learner back into the text instead of replacing study with a verdict.
+- select the exact Gospel the user named;
+- request the exact passage through Feason Context;
+- keep retrieved sources separate from model explanation;
+- preserve provenance and caveats returned by the MCP service;
+- refuse to invent evidence when retrieval is missing.
+
+The package embeds no Gospel interpretation, literary outline, theological
+summary, or preferred doctrinal reading. Those conclusions must come from the
+runtime evidence and the consuming application's disclosed method.
 
 ## Status
 
-This repository is a public-release candidate. It remains private and the npm
-package remains unpublished until the four profiles receive named human
-theological approval.
+The source repository is public. The npm package remains unpublished until a
+separate release is intentionally approved and verified.
 
 ## Quick example
 
@@ -47,14 +48,14 @@ POST https://www.feason.com/api/mcp
 Feason Context returns source text, provenance, related evidence, and caveats.
 This package does not contain an API token and never persists one.
 
-## The four agents
+## The four routes
 
-| Agent | Primary attention |
+| Route | Constraint |
 |---|---|
-| Understanding Matthew | Israel's Scriptures, kingdom, teaching, righteousness, discipleship, and mission |
-| Understanding Mark | Urgency, authority, contested identity, misunderstanding, the cross, and costly discipleship |
-| Understanding Luke | The Spirit, prayer, reversal, mercy, table fellowship, Jerusalem, and witness |
-| Understanding John | Signs, testimony, symbolic language, feasts, love, glory, belief, and life |
+| Understanding Matthew | Retrieve and answer from Matthew evidence |
+| Understanding Mark | Retrieve and answer from Mark evidence |
+| Understanding Luke | Retrieve and answer from Luke evidence |
+| Understanding John | Retrieve and answer from John evidence |
 
 Import one agent directly when your product has already made the selection:
 
@@ -77,17 +78,17 @@ The package requires Node.js 20 or later. It has no runtime dependencies.
 
 ## Boundaries
 
-This repository provides learning profiles and integration helpers. It does not
-provide pastoral care, determine doctrine for a church, or replace qualified
-teachers and communities. Applications must preserve source attribution and
-must not present one Christian tradition's disputed interpretation as universal.
+This repository provides routing and integration helpers, not embedded
+theological profiles. Applications must preserve source attribution and clearly
+separate retrieved evidence from their own generated interpretation.
 
 See `NOTICE.md` for the content and data-license boundary.
 
 ## Contributing
 
-See `CONTRIBUTING.md`. Changes to theological profile text require named human
-theological review before release.
+See `CONTRIBUTING.md`. Changes that add interpretive or theological content must
+be proposed as a separately reviewed content layer rather than hidden inside the
+technical router.
 
 ## License
 
