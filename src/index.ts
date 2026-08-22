@@ -13,9 +13,6 @@ export type {
   GospelAgentProfile,
   GospelName,
   GospelStudyRequest,
-  InterpretiveLens,
-  LiterarySection,
-  StartingPoint,
 } from './types.js';
 
 export const gospelAgents = {
@@ -25,17 +22,11 @@ export const gospelAgents = {
   John: johnAgent,
 } satisfies Record<GospelName, GospelAgentProfile>;
 
-const aliases: Record<string, GospelName> = {
-  matthew: 'Matthew',
-  matt: 'Matthew',
-  mt: 'Matthew',
-  mark: 'Mark',
-  mk: 'Mark',
-  luke: 'Luke',
-  lk: 'Luke',
-  john: 'John',
-  jn: 'John',
-};
+const aliases = Object.fromEntries(
+  Object.values(gospelAgents).flatMap((agent) =>
+    agent.aliases.map((alias) => [alias.toLowerCase(), agent.gospel])
+  )
+) as Record<string, GospelName>;
 
 export function detectGospel(input: string): GospelName | null {
   const match = input.match(/\b(matthew|matt|mt|mark|mk|luke|lk|john|jn)\b/i);
@@ -55,35 +46,34 @@ function passageFromQuestion(question: string, gospel: GospelName) {
     gospel === 'Mark' ? '(?:Mark|Mk)' :
       gospel === 'Luke' ? '(?:Luke|Lk)' : '(?:John|Jn)';
   const match = question.match(new RegExp(`\\b${escaped}\\.?\\s+\\d{1,2}(?::\\d{1,3}(?:-\\d{1,3})?)?`, 'i'));
-  return match?.[0] ?? gospel;
+  return match?.[0] ?? null;
 }
 
 export function buildGospelStudyRequest(question: string): GospelStudyRequest | null {
   const profile = getGospelAgent(question);
   if (!profile) return null;
 
-  const lenses = profile.lenses
-    .map((lens, index) => `${index + 1}. ${lens.title}: ${lens.instruction}`)
-    .join('\n');
+  const reference = passageFromQuestion(question, profile.gospel);
   const safeguards = profile.safeguards.map((item) => `- ${item}`).join('\n');
 
   return {
     agentId: profile.id,
     gospel: profile.gospel,
     question,
-    contextRequest: {
-      tool: 'get_scripture_context',
-      arguments: { reference: passageFromQuestion(question, profile.gospel) },
-    },
+    needsPassage: reference === null,
+    contextRequest: reference ? {
+      tool: profile.contextTool,
+      arguments: { reference },
+    } : null,
     instructions: [
-      `You are ${profile.title}, a source-grounded learning agent dedicated to the Gospel of ${profile.gospel}.`,
-      profile.learningGoal,
-      'Begin with the requested passage and its immediate literary context. Distinguish quoted source text from your explanation.',
-      'Use these Gospel-specific lenses:',
-      lenses,
+      `Handle this request with the dedicated ${profile.gospel} route.`,
+      reference
+        ? `Call ${profile.contextTool} for ${reference} before answering.`
+        : `Ask the learner which ${profile.gospel} passage or question they want to explore before making interpretive claims.`,
+      `Base the answer on the returned ${profile.gospel} text, provenance, literary context, related evidence, and caveats.`,
       'Safeguards:',
       safeguards,
-      'If evidence is missing or a conclusion is disputed, say so plainly. End with one question that invites the learner back into the text.',
+      'If evidence is missing, say so plainly instead of filling the gap from model memory.',
     ].join('\n\n'),
   };
 }
