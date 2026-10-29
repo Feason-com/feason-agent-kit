@@ -23,3 +23,37 @@ export type GospelStudyRequest = {
   } | null;
   instructions: string;
 };
+
+export const angelentToolNames = [
+  'search_sources',
+  'get_scripture_context',
+  'get_primary_sources',
+  'compare_traditions',
+  'evaluate_claim',
+  'build_evidence_packet',
+  'verify_citation',
+] as const;
+
+export type AngelentToolName = (typeof angelentToolNames)[number];
+
+export type AngelentPrinciple = {
+  beatitude: string;
+  discipline: string;
+};
+
+export type AngelentAgentProfile = {
+  id: 'angelent';
+  title: 'Angelent';
+  ontologyDisclosure: string;
+  principles: readonly AngelentPrinciple[];
+  allowedTools: readonly AngelentToolName[];
+  safeguards: readonly string[];
+};
+
+export type AngelentRequest = {
+  agentId: AngelentAgentProfile['id'];
+  question: string;
+  allowedTools: readonly AngelentToolName[];
+  canTakeExternalAction: false;
+  instructions: string;
+};

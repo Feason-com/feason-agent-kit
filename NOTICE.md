@@ -1,6 +1,6 @@
 # Notices and content boundary
 
-The software and Feason-authored Gospel profile text in this directory are
+The software and Feason-authored agent profile text in this directory are
 licensed under the MIT License.
 
 This package contains Scripture references but does not redistribute a Bible
